@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { BarChart3, Hash, Link2, MousePointerClick, TrendingUp } from "lucide-react";
 import { getUrlStats } from "../api/client";
 import { useMyLinks } from "../hooks/useMyLinks";
 import { usePolling } from "../hooks/usePolling";
@@ -10,6 +11,18 @@ import { BreakdownPieChart } from "../components/BreakdownPieChart";
 export function DashboardPage() {
   const { links, removeLink } = useMyLinks();
   const [selectedCode, setSelectedCode] = useState(links[0]?.shortCode ?? null);
+  const [clicksByCode, setClicksByCode] = useState({});
+
+  const handleStatsUpdate = useCallback((shortCode, totalClicks) => {
+    setClicksByCode((prev) => (prev[shortCode] === totalClicks ? prev : { ...prev, [shortCode]: totalClicks }));
+  }, []);
+
+  const totalClicksAcrossLinks = useMemo(
+    () => Object.values(clicksByCode).reduce((sum, n) => sum + n, 0),
+    [clicksByCode],
+  );
+
+  const avgClicksPerLink = links.length > 0 ? (totalClicksAcrossLinks / links.length).toFixed(1) : "0";
 
   const { data: selectedStats } = usePolling(
     () => getUrlStats(selectedCode),
@@ -19,17 +32,59 @@ export function DashboardPage() {
   if (links.length === 0) {
     return (
       <div className="page">
-        <h1>Dashboard</h1>
-        <p className="empty-state">
-          You haven't shortened any links yet in this browser. <Link to="/">Shorten one →</Link>
-        </p>
+        <div className="page-header">
+          <h1>Dashboard</h1>
+          <p>Track clicks, devices, and referrers for every link you shorten.</p>
+        </div>
+        <div className="empty-state-block">
+          <BarChart3 size={40} strokeWidth={1.5} />
+          <p>You haven't shortened any links yet in this browser.</p>
+          <Link to="/">
+            <Link2 size={15} />
+            Shorten your first link
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="page page--dashboard">
-      <h1>Dashboard</h1>
+      <div className="page-header page-header--left">
+        <h1>Dashboard</h1>
+        <p>Live click data, refreshed every 5 seconds.</p>
+      </div>
+
+      <div className="summary-row">
+        <div className="summary-card">
+          <span className="summary-card__icon">
+            <Hash size={19} />
+          </span>
+          <div>
+            <div className="summary-card__value">{links.length}</div>
+            <div className="summary-card__label">Total links</div>
+          </div>
+        </div>
+        <div className="summary-card">
+          <span className="summary-card__icon">
+            <MousePointerClick size={19} />
+          </span>
+          <div>
+            <div className="summary-card__value">{totalClicksAcrossLinks}</div>
+            <div className="summary-card__label">Total clicks</div>
+          </div>
+        </div>
+        <div className="summary-card">
+          <span className="summary-card__icon">
+            <TrendingUp size={19} />
+          </span>
+          <div>
+            <div className="summary-card__value">{avgClicksPerLink}</div>
+            <div className="summary-card__label">Avg. clicks / link</div>
+          </div>
+        </div>
+      </div>
+
       <div className="dashboard-layout">
         <div className="url-list">
           {links.map((link) => (
@@ -38,6 +93,7 @@ export function DashboardPage() {
               link={link}
               isSelected={link.shortCode === selectedCode}
               onSelect={setSelectedCode}
+              onStatsUpdate={handleStatsUpdate}
               onRemove={(code) => {
                 removeLink(code);
                 if (code === selectedCode) {
@@ -50,7 +106,12 @@ export function DashboardPage() {
 
         {selectedCode && (
           <div className="detail-panel">
-            <h2>{selectedCode}</h2>
+            <div className="detail-panel__header">
+              <span className="detail-panel__code">
+                <Link2 size={15} />
+                {selectedCode}
+              </span>
+            </div>
             {!selectedStats ? (
               <p className="empty-state">Loading…</p>
             ) : (
@@ -60,28 +121,37 @@ export function DashboardPage() {
                     Analytics service is unavailable right now - showing core link info only.
                   </p>
                 )}
-                <p className="total-clicks">{selectedStats.total_clicks} total clicks</p>
+                <div className="total-clicks">
+                  {selectedStats.total_clicks}
+                  <span>total clicks</span>
+                </div>
 
                 <h3>Clicks over time</h3>
-                <ClicksOverTimeChart hourlyClicks={selectedStats.hourly_clicks} />
+                <div className="chart-card">
+                  <ClicksOverTimeChart hourlyClicks={selectedStats.hourly_clicks} />
+                </div>
 
                 <div className="pie-row">
                   <div>
                     <h3>Device / browser</h3>
-                    <BreakdownPieChart
-                      data={selectedStats.device_breakdown.map((d) => ({
-                        ...d,
-                        label: `${d.device_type} / ${d.browser}`,
-                      }))}
-                      nameKey="label"
-                    />
+                    <div className="chart-card">
+                      <BreakdownPieChart
+                        data={selectedStats.device_breakdown.map((d) => ({
+                          ...d,
+                          label: `${d.device_type} / ${d.browser}`,
+                        }))}
+                        nameKey="label"
+                      />
+                    </div>
                   </div>
                   <div>
                     <h3>Referrer</h3>
-                    <BreakdownPieChart
-                      data={selectedStats.referrer_breakdown}
-                      nameKey="referrer_domain"
-                    />
+                    <div className="chart-card">
+                      <BreakdownPieChart
+                        data={selectedStats.referrer_breakdown}
+                        nameKey="referrer_domain"
+                      />
+                    </div>
                   </div>
                 </div>
               </>

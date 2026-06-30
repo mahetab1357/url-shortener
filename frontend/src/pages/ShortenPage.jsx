@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { AlertCircle, ArrowRight, Calendar, Link2, Sparkles, Tag } from "lucide-react";
 import { shortenUrl, ApiError } from "../api/client";
 import { useMyLinks } from "../hooks/useMyLinks";
 import { CopyButton } from "../components/CopyButton";
@@ -36,45 +37,80 @@ export function ShortenPage() {
 
   return (
     <div className="page">
-      <h1>Shorten a URL</h1>
+      <div className="page-header">
+        <span className="page-header__eyebrow">
+          <Sparkles size={13} />
+          Fast, cached, trackable
+        </span>
+        <h1>Shorten a URL</h1>
+        <p>Paste a long link below and get a short, shareable one in seconds.</p>
+      </div>
+
       <form onSubmit={handleSubmit} className="shorten-form">
         <label htmlFor="url">Long URL</label>
-        <input
-          id="url"
-          type="url"
-          placeholder="https://example.com/some/very/long/path"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          required
-        />
+        <div className="input-wrap">
+          <Link2 size={16} />
+          <input
+            id="url"
+            type="url"
+            placeholder="https://example.com/some/very/long/path"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            required
+          />
+        </div>
 
         <label htmlFor="customAlias">Custom alias (optional)</label>
-        <input
-          id="customAlias"
-          type="text"
-          placeholder="my-cool-link"
-          value={customAlias}
-          onChange={(e) => setCustomAlias(e.target.value)}
-        />
+        <div className="input-wrap">
+          <Tag size={16} />
+          <input
+            id="customAlias"
+            type="text"
+            placeholder="my-cool-link"
+            value={customAlias}
+            onChange={(e) => setCustomAlias(e.target.value)}
+          />
+        </div>
 
         <label htmlFor="expiresAt">Expires at (optional)</label>
-        <input
-          id="expiresAt"
-          type="datetime-local"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-        />
+        <div className="input-wrap">
+          <Calendar size={16} />
+          <input
+            id="expiresAt"
+            type="datetime-local"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+          />
+        </div>
 
         <button type="submit" disabled={submitting}>
-          {submitting ? "Shortening…" : "Shorten"}
+          {submitting ? (
+            <>
+              <span className="spinner" />
+              Shortening…
+            </>
+          ) : (
+            <>
+              Shorten link
+              <ArrowRight size={17} />
+            </>
+          )}
         </button>
       </form>
 
-      {error && <p className="error-message">{error}</p>}
+      {error && (
+        <p className="error-message">
+          <AlertCircle size={16} />
+          {error}
+        </p>
+      )}
 
       {result && (
         <div className="result-card">
-          <span className="result-card__url">{result.short_url}</span>
+          <div className="result-card__main">
+            <Link2 size={18} />
+            <span className="result-card__url">{result.short_url}</span>
+          </div>
           <CopyButton text={result.short_url} />
         </div>
       )}
