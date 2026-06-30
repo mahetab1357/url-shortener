@@ -13,6 +13,10 @@ Locust load test that caught and fixed a real concurrency bug (see
 [load-tests/RESULTS.md](load-tests/RESULTS.md)), and a 5-job CI pipeline
 verified green on GitHub Actions.
 
+📄 **[Full project documentation (PDF)](docs/Snip_Project_Documentation.pdf)** -
+architecture diagrams, request flows, design rationale, API reference, ER
+diagram, and load test results in one document.
+
 ## Screenshots
 
 *(placeholder - add screenshots of the shorten page and dashboard here)*
