@@ -51,7 +51,7 @@ services:
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       BASE_HOST: http://localhost:8000
       ANALYTICS_SERVICE_URL: http://analytics-service:8081
-      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
     ports:
       - "8000:8000"
     depends_on:

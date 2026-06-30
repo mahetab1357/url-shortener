@@ -23,7 +23,11 @@ class Settings(BaseSettings):
 
     # Comma-separated list; the frontend runs on a different origin
     # (Vite dev server / its own static host) so the browser enforces CORS.
-    cors_allowed_origins: str = "http://localhost:5173"
+    # Both localhost and 127.0.0.1 are listed for local dev - browsers
+    # treat them as different origins even though they're the same
+    # machine, and it's an easy accident to open one when you meant the
+    # other (e.g. via autocomplete).
+    cors_allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
 
 settings = Settings()
