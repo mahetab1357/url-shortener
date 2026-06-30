@@ -3,7 +3,9 @@ spring:
     name: analytics-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/shortener}
+    # Port 5433, not Postgres's default 5432 - see the comment in
+    # docker-compose.yml's postgres service for why.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/shortener}
     username: ${SPRING_DATASOURCE_USERNAME:shortener}
     password: ${SPRING_DATASOURCE_PASSWORD:shortener}
 

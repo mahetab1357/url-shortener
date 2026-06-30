@@ -8,7 +8,9 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql+psycopg://shortener:shortener@localhost:5432/shortener"
+    # Port 5433, not Postgres's default 5432 - see the comment in
+    # docker-compose.yml's postgres service for why.
+    database_url: str = "postgresql+psycopg://shortener:shortener@localhost:5433/shortener"
     redis_url: str = "redis://localhost:6379/0"
     rabbitmq_url: str = "amqp://guest:guest@localhost:5672/"
 
