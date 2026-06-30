@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: analytics-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/shortener}
+    username: ${SPRING_DATASOURCE_USERNAME:shortener}
+    password: ${SPRING_DATASOURCE_PASSWORD:shortener}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: analytics
+        format_sql: false
+    open-in-view: false
+    # defer-datasource-initialization is deliberately left at its default
+    # (false): that runs schema.sql BEFORE Hibernate's ddl-auto, which is
+    # what we need since `analytics` the schema must exist before
+    # Hibernate can create tables inside it. (defer=true is for the
+    # opposite case - data.sql inserting into tables Hibernate already
+    # created - and setting it here made Hibernate try to create tables
+    # in a schema that didn't exist yet.)
+
+  sql:
+    init:
+      mode: always
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+app:
+  rabbitmq:
+    click-events-queue: click_events
+
+server:
+  port: ${SERVER_PORT:8081}
